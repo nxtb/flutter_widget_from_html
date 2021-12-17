@@ -1,7 +1,11 @@
 name: Flutter
 on:
   push:
+    branches:
+      - release/flutter/2.5
   pull_request:
+    branches:
+      - release/flutter/2.5
 
 jobs:
   analyze:
