@@ -12,6 +12,7 @@ void main() {
 
   testWidgets('VideoPlayer', (WidgetTester tester) async {
     final test = _AspectRatioTest(
+      tester: tester,
       child: VideoPlayer(
         'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
         aspectRatio: 1,
@@ -94,7 +95,7 @@ class WebViewTestCase {
       debuggingEnabled: true,
       unsupportedWorkaroundForIssue375: issue375,
     );
-    final test = _AspectRatioTest(child: webView);
+    final test = _AspectRatioTest(tester: tester, child: webView);
 
     runApp(test);
 
@@ -119,8 +120,13 @@ class _AspectRatioTest extends StatelessWidget {
   static final _value = Expando<double>();
 
   final Widget child;
+  final WidgetTester tester;
 
-  const _AspectRatioTest({@required this.child, Key key}) : super(key: key);
+  const _AspectRatioTest({
+    @required this.child,
+    Key key,
+    @required this.tester,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +136,7 @@ class _AspectRatioTest extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Measurer(
             onMeasure: (size, _) {
-              debugPrint('onMeasure: size=$size');
+              debugPrint('${tester.testDescription}.onMeasure: size=$size');
               _value[this] = size.width / size.height;
             },
             child: child,
@@ -147,7 +153,7 @@ class _AspectRatioTest extends StatelessWidget {
     expect(
       (actual * powerOfTen).floorToDouble() / powerOfTen,
       (expected * powerOfTen).floorToDouble() / powerOfTen,
-      reason: 'actual $actual != expected $expected',
+      reason: '${tester.testDescription}: actual $actual != expected $expected',
     );
   }
 }
