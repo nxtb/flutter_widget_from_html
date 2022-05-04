@@ -11,7 +11,9 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('VideoPlayer', (WidgetTester tester) async {
+    final key = GlobalKey<_AspectRatioTestState>();
     final test = _AspectRatioTest(
+      key: key,
       tester: tester,
       child: VideoPlayer(
         'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
@@ -24,7 +26,7 @@ void main() {
     runApp(test);
     await tester.pumpAndSettle();
 
-    test.expectValueEquals(16 / 9);
+    key.currentState.expectValueEquals(16 / 9);
   });
 
   final webViewTestCases = ValueVariant(const {
@@ -38,8 +40,8 @@ void main() {
     'WebView',
     (WidgetTester tester) async {
       final testCase = webViewTestCases.currentValue;
-      final test = await testCase.run(tester);
-      test.expectValueEquals(testCase.input);
+      final key = await testCase.run(tester);
+      key.currentState.expectValueEquals(testCase.input);
     },
     variant: webViewTestCases,
   );
@@ -52,7 +54,7 @@ class WebViewTestCase {
   // ignore: avoid_positional_boolean_parameters
   const WebViewTestCase(this.input, this.issue375);
 
-  Future<_AspectRatioTest> run(WidgetTester tester) async {
+  Future<GlobalKey<_AspectRatioTestState>> run(WidgetTester tester) async {
     final html = '''
 <!doctype html>
 <head>
@@ -76,7 +78,7 @@ class WebViewTestCase {
 
       const height = width / $input;
       block.style.height = height + 'px';
-      block.innerHTML = 'input={input}, attempts=' + attempts;
+      block.innerHTML = 'input=$input, attempts=' + attempts;
 
       return setTimeout(resize, 100);
     }
@@ -86,7 +88,7 @@ class WebViewTestCase {
 </body>
 ''';
 
-    const interval = Duration(seconds: 1);
+    const interval = Duration(seconds: 2);
     final webView = WebView(
       Uri.dataFromString(html, mimeType: 'text/html').toString(),
       aspectRatio: 16 / 9,
@@ -95,19 +97,23 @@ class WebViewTestCase {
       debuggingEnabled: true,
       unsupportedWorkaroundForIssue375: issue375,
     );
-    final test = _AspectRatioTest(tester: tester, child: webView);
 
-    runApp(test);
+    final key = GlobalKey<_AspectRatioTestState>();
 
-    for (var i = 0; i < 5; i++) {
+    runApp(
+      _AspectRatioTest(
+        key: key,
+        tester: tester,
+        child: webView,
+      ),
+    );
+
+    for (var i = 0; i < 7; i++) {
       await tester.pump();
       await tester.runAsync(() => Future.delayed(interval));
     }
 
-    await tester.pump();
-    await tester.pumpWidget(const SizedBox.shrink());
-
-    return test;
+    return key;
   }
 
   @override
@@ -116,7 +122,7 @@ class WebViewTestCase {
   }
 }
 
-class _AspectRatioTest extends StatelessWidget {
+class _AspectRatioTest extends StatefulWidget {
   static final _value = Expando<double>();
 
   final Widget child;
@@ -129,6 +135,11 @@ class _AspectRatioTest extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_AspectRatioTest> createState() => _AspectRatioTestState();
+}
+
+class _AspectRatioTestState extends State<_AspectRatioTest> {
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
@@ -136,24 +147,40 @@ class _AspectRatioTest extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Measurer(
             onMeasure: (size, _) {
-              debugPrint('${tester.testDescription}.onMeasure: size=$size');
-              _value[this] = size.width / size.height;
+              debugPrint(
+                '${widget.tester.testDescription}.onMeasure: size=$size',
+              );
+              _AspectRatioTest._value[this] = size.width / size.height;
             },
-            child: child,
+            child: widget.child,
           ),
         ),
       ),
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('${widget.tester.testDescription}.initState');
+  }
+
+  @override
+  void dispose() {
+    debugPrint('${widget.tester.testDescription}.dispose');
+    super.dispose();
+  }
+
   void expectValueEquals(double expected) {
     const fractionDigits = 2;
     final powerOfTen = pow(10, fractionDigits);
-    final actual = _value[this] ?? .0;
+    final actual = _AspectRatioTest._value[this] ?? .0;
+    debugPrint(
+      '${widget.tester.testDescription}: actual=$actual expected=$expected',
+    );
     expect(
       (actual * powerOfTen).floorToDouble() / powerOfTen,
       (expected * powerOfTen).floorToDouble() / powerOfTen,
-      reason: '${tester.testDescription}: actual $actual != expected $expected',
     );
   }
 }
