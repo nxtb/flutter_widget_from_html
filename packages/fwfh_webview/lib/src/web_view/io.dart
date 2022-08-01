@@ -12,18 +12,12 @@ class WebViewState extends State<WebView> {
 
   late double _aspectRatio;
   String? _firstFinishedUrl;
-  _Issue37? _issue37;
   lib.WebViewController? _wvc;
 
   @override
   void initState() {
     super.initState();
     _aspectRatio = widget.aspectRatio;
-
-    if (widget.unsupportedWorkaroundForIssue37) {
-      _issue37 = _Issue37(this);
-      _widgetsBindingInstance.addObserver(_issue37!);
-    }
   }
 
   @override
@@ -59,22 +53,9 @@ class WebViewState extends State<WebView> {
   }
 
   @override
-  void deactivate() {
-    super.deactivate();
-
-    if (widget.unsupportedWorkaroundForIssue37) {
-      _wvc?.reload();
-    }
-  }
-
-  @override
   void dispose() {
     for (final timer in _timers) {
       timer.cancel();
-    }
-
-    if (_issue37 != null) {
-      _widgetsBindingInstance.removeObserver(_issue37!);
     }
 
     super.dispose();
@@ -157,22 +138,6 @@ class WebViewState extends State<WebView> {
           _timers.add(Timer(interval, _autoResize));
         }
       }
-    }
-  }
-}
-
-// TODO: remove workaround when our minimum Flutter version >2.12
-WidgetsBinding? get _widgetsBindingInstance => WidgetsBinding.instance;
-
-class _Issue37 with WidgetsBindingObserver {
-  final WebViewState wvs;
-
-  _Issue37(this.wvs);
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      wvs._wvc?.reload();
     }
   }
 }
