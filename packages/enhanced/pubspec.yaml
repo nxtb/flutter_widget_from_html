@@ -17,7 +17,11 @@ dependencies:
   fwfh_selectable_text: ^0.8.3+1
   fwfh_svg: ^0.7.2
   fwfh_url_launcher: ^0.6.1+3
-  fwfh_webview: ^0.6.2+2
+  fwfh_webview: 
+    git:
+      url: https://github.com/nxtb/flutter_widget_from_html
+      path: packages/fwfh_webview
+      ref: 2de130fec005be06d090176399e1ca48aa973787 
   html: ^0.15.0
 
 dependency_overrides:
@@ -37,9 +41,7 @@ dependency_overrides:
     path: ../fwfh_text_style
   fwfh_url_launcher:
     path: ../fwfh_url_launcher
-  fwfh_webview:
-    path: ../fwfh_webview
-
+    
 dev_dependencies:
   file:
   flutter_test:
