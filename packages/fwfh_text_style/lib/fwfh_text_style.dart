@@ -63,6 +63,7 @@ class FwfhTextStyle extends _TextStyleProxy {
     TextBaseline? textBaseline,
     ui.TextLeadingDistribution? leadingDistribution,
     Locale? locale,
+    List<ui.FontVariation>? fontVariations,
     List<ui.Shadow>? shadows,
     List<ui.FontFeature>? fontFeatures,
     String? package,
@@ -83,6 +84,7 @@ class FwfhTextStyle extends _TextStyleProxy {
           fontSizeDelta: fontSizeDelta,
           fontWeightDelta: fontWeightDelta,
           fontStyle: fontStyle,
+          fontVariations: fontVariations,
           letterSpacingFactor: letterSpacingFactor,
           letterSpacingDelta: letterSpacingDelta,
           wordSpacingFactor: wordSpacingFactor,
@@ -113,6 +115,7 @@ class FwfhTextStyle extends _TextStyleProxy {
     dynamic height = _default,
     ui.TextLeadingDistribution? leadingDistribution,
     Locale? locale,
+    List<ui.FontVariation>? fontVariations,
     Paint? foreground,
     Paint? background,
     List<ui.Shadow>? shadows,
@@ -156,6 +159,7 @@ class FwfhTextStyle extends _TextStyleProxy {
         locale: locale ?? this.locale,
         foreground: foreground ?? this.foreground,
         background: background ?? this.background,
+        fontVariations: fontVariations ?? this.fontVariations,
         shadows: shadows ?? this.shadows,
         fontFeatures: fontFeatures ?? this.fontFeatures,
         decoration: decoration ?? this.decoration,
@@ -313,6 +317,9 @@ abstract class _TextStyleProxy implements TextStyle {
 
   @override
   TextOverflow? get overflow => ref.overflow;
+
+  @override
+  List<ui.FontVariation>? get fontVariations => ref.fontVariations;
 
   @override
   List<Shadow>? get shadows => ref.shadows;
