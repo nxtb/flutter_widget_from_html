@@ -11,12 +11,7 @@ dependencies:
   csslib: ^0.17.0
   flutter:
     sdk: flutter
-  fwfh_text_style:
-    # moved to git reference as override was not working in the external project
-    git:
-      url: https://github.com/nxtb/flutter_widget_from_html
-      path: packages/fwfh_text_style
-      ref: cbe1c234d83019c9b01457bd677466b2efbdf59e
+  fwfh_text_style: ^2.2.0
   html: ^0.15.0
 
 dependency_overrides:
